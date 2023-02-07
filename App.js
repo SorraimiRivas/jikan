@@ -1,21 +1,59 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { View, Text, FlatList, SafeAreaView } from "react-native";
+import React, { useState, useEffect } from "react";
+import CommonCard from "./src/components/CommonCard";
+import axios from "axios";
+import Test from "./src/components/Test";
 
-export default function App() {
+const App = () => {
+  const [results, setResults] = useState([]);
+  // const [isLoading, setIsLoading] = useState(false);
+
+  const getAnimeList = async () => {
+    await axios
+      .request({
+        method: "GET",
+        baseURL: "https://api.jikan.moe/v4",
+        url: "/anime",
+        params: {
+          limit: 1,
+          order_by: "name",
+        },
+      })
+      .then((res) => {
+        setResults(res.data.data);
+        // setIsLoading(true);
+      });
+  };
+
+  // const Loader = () => {
+  //   return (
+  //     <View>
+  //       <Text>Loading...</Text>
+  //     </View>
+  //   );
+  // };
+
+  useEffect(() => {
+    // setIsLoading(true);
+    getAnimeList();
+
+    return;
+  }, []);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <SafeAreaView className="flex-1 bg-blue-300 h-full w-full">
+      <CommonCard title="Hellow" />
+      <Test />
+      {/* <FlatList
+        numColumns={2}
+        data={results}
+        keyExtractor={(item, index) => `${item.id + index.toString()}`}
+        renderItem={({ item }) => (
+          <CommonCard className="m-4 h-8 w-5 bg-red-900" title={item.title} />
+        )}
+      /> */}
+    </SafeAreaView>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;
