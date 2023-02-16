@@ -1,11 +1,13 @@
 {
   "expo": {
+    "scheme": "jikan",
     "name": "jikan",
     "slug": "jikan",
     "version": "1.0.0",
-    "assetBundlePatterns": [
-      "**/*"
-    ]
+    "assetBundlePatterns": ["**/*"],
+    "web": {
+      "bundler": "metro"
+    }
   },
   "name": "jikan"
 }

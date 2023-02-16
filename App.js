@@ -1,57 +1,67 @@
-import { View, Text, FlatList, SafeAreaView } from "react-native";
-import React, { useState, useEffect } from "react";
+import {
+  View,
+  FlatList,
+  SafeAreaView,
+  useWindowDimensions,
+  ActivityIndicator,
+} from "react-native";
+import React, { useState, useEffect, useCallback, memo } from "react";
 import CommonCard from "./src/components/CommonCard";
+// import CommonCardSkeleton from "./src/components/CommonCardSkeleton";
 import axios from "axios";
-import Test from "./src/components/Test";
+import SkeletonCard from "./src/components/SkeletonCommonCard";
 
 const App = () => {
   const [results, setResults] = useState([]);
-  // const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const { width, height } = useWindowDimensions();
 
   const getAnimeList = async () => {
     await axios
       .request({
         method: "GET",
         baseURL: "https://api.jikan.moe/v4",
-        url: "/anime",
+        url: "/manga",
         params: {
-          limit: 1,
-          order_by: "name",
+          limit: 10,
+          page,
+          order_by: "popularity",
         },
       })
       .then((res) => {
-        setResults(res.data.data);
-        // setIsLoading(true);
+        setResults([...results, ...res.data.data]);
+        setIsLoading(true);
       });
   };
 
-  // const Loader = () => {
-  //   return (
-  //     <View>
-  //       <Text>Loading...</Text>
-  //     </View>
-  //   );
-  // };
+  const LoadMore = useCallback(() => {
+    setPage((prevPage) => prevPage + 1);
+  }, [setPage]);
 
   useEffect(() => {
     // setIsLoading(true);
     getAnimeList();
-
-    return;
-  }, []);
+  }, [page]);
 
   return (
-    <SafeAreaView className="flex-1 bg-blue-300 h-full w-full">
-      <CommonCard title="Hellow" />
-      <Test />
-      {/* <FlatList
-        numColumns={2}
+    <SafeAreaView
+      style={{ width: width, height: height }}
+      className="flex-1 flex items-center bg-blue-300"
+    >
+      {/* <CommonCardSkeleton /> */}
+      <FlatList
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{}}
+        numColumns={4}
         data={results}
         keyExtractor={(item, index) => `${item.id + index.toString()}`}
         renderItem={({ item }) => (
-          <CommonCard className="m-4 h-8 w-5 bg-red-900" title={item.title} />
+          <CommonCard title={item.title} image={item.images.jpg.image_url} />
         )}
-      /> */}
+        onEndReached={LoadMore}
+        onEndReachedThreshold={0.5}
+      />
     </SafeAreaView>
   );
 };
